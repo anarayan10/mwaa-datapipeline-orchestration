@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS Cloudformation Template to create AWS Crawler, S3, and Glue Job'
+
+# Set :param values
+Parameters:
+  IAMRoleName:
+    Description: Name of the exising role
+    Type: String
+    Default: demo-mwaa-glue
+  GlueJobName:
+    Description: Glue Job Name to process the raw data
+    Type: String
+    Default: cars-data-transformation
+  GlueCrawlerName:
+    Description: Glue Crawler name to crawl the raw data
+    Type: String
+    Default: catalog-cars-data
+  GlueCatalogName:
+    Description: Name of the data Catalog database
+    Type: String
+    Default: curated-data
+  GlueJobScriptLocation:
+    Description: Glue job script location
+    Type: String
+    Default: 'https://airflowmwaa-demo/scripts/etlscript.py'
+  CrawlerS3Path:
+    Description: Target file name for AWS Crawler
+    Type: String
+    Default: 's3://airflowmwaa-demo/curated-data/'
+
+Resources:
+  IAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Ref IAMRoleName
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - glue.amazonaws.com
+              - s3.amazonaws.com
+            Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+          - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+          - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        Path: "/"
+        
+#Create CUR Database
+  GlueCatalog:
+    Type: 'AWS::Glue::Database'
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Ref GlueCatalogName
+        Description: Database for AWS CUR Data
+
+#Create AWS Glue job 
+  GlueJob:
+    Type: AWS::Glue::Job
+    Properties: 
+      Command:
+        Name: glueetl
+        PythonVersion: '3'
+        ScriptLocation: !Ref GlueJobScriptLocation
+      ExecutionProperty:
+        MaxConcurrentRuns: 2
+      MaxRetries: 0
+      Role: !Ref IAMRoleName
+      Name: !Ref GlueJobName
+      GlueVersion: '3.0'
+      WorkerType: 'G.1X'
+      NumberOfWorkers: 10
+
+#Create AWS Glue CUR Crawler
+  GlueCrawler:
+    Type: 'AWS::Glue::Crawler'
+    Properties:
+      Name: !Ref GlueCrawlerName
+      Role: !GetAtt "IAMRole.Arn"
+      DatabaseName: !Ref GlueCatalogName
+      RecrawlPolicy:
+        RecrawlBehavior: CRAWL_EVERYTHING
+      Targets:
+        S3Targets:
+          - Path: !Ref CrawlerS3Path
+
+Outputs:
+  GlueCatalog:
+     Description: AWS Glue Job created using CloudFormation Template.
+     Value: !Ref  GlueCatalog
+  GlueJob:
+     Description: AWS Glue Database created using CloudFormation Template.
+     Value: !Ref  GlueJob
+  GlueCrawler:
+    Description: AWS Crawler created using CloudFormation Template.
+    Value: !Ref  GlueCrawler
