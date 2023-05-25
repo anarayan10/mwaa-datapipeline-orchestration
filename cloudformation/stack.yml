@@ -22,13 +22,14 @@ Parameters:
   GlueJobScriptLocation:
     Description: Glue job script location
     Type: String
-    Default: 'https://airflowmwaa-demo/scripts/etlscript.py'
+    Default: 's3://airflowmwaa-demo/scripts/etlscript.py'
   CrawlerS3Path:
     Description: Target file name for AWS Crawler
     Type: String
     Default: 's3://airflowmwaa-demo/curated-data/'
 
 Resources:
+# Create IAM role for Glue
   IAMRole:
       Type: AWS::IAM::Role
       Properties:
@@ -48,7 +49,7 @@ Resources:
           - arn:aws:iam::aws:policy/AmazonS3FullAccess
         Path: "/"
         
-#Create CUR Database
+# Create Glue Database
   GlueCatalog:
     Type: 'AWS::Glue::Database'
     Properties:
@@ -57,7 +58,7 @@ Resources:
         Name: !Ref GlueCatalogName
         Description: Database for AWS CUR Data
 
-#Create AWS Glue job 
+# Create AWS Glue job 
   GlueJob:
     Type: AWS::Glue::Job
     Properties: 
@@ -74,7 +75,7 @@ Resources:
       WorkerType: 'G.1X'
       NumberOfWorkers: 10
 
-#Create AWS Glue CUR Crawler
+# Create AWS Glue Crawler
   GlueCrawler:
     Type: 'AWS::Glue::Crawler'
     Properties:

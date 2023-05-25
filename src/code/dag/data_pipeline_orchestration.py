@@ -60,7 +60,7 @@ with DAG(
     # Task to purge data catalog in Glue    
     purge_data_catalog = BashOperator(
         task_id="purge_data_catalog",
-        bash_command='aws glue delete-table --database-name curated-data --name curated_data || echo "Database cars-details not found."',
+        bash_command='aws glue delete-table --database-name curated-data --name curated_data || echo "Database curated-data not found."',
     )
     
     # Task to run the Glue Job
@@ -94,7 +94,7 @@ with DAG(
     purge_raw_data_file = S3DeleteObjectsOperator(
         task_id="purge_raw_data_file",
         bucket="airflowmwaa-demo",
-        keys=["landed-zone/carsdetail.csv"],
+        keys=["landed-zone/carsdata.csv"],
         aws_conn_id="aws_default",
     ) 
 # Define the task dependencies using chain    

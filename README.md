@@ -1,10 +1,11 @@
 # Overview
-Let's take a scenario where you must kick off the data pipeline when files land in the AWS S3 bucket, transform and save the data into S3 curated bucket, and crawl and catalog the curated data in the AWA Athena database table to run analytical queries without manual intervention. This blog post will walk you through step-by-step instructions for building data pipeline orchestration using Amazon Managed Workflow for Apache Airflow (MWAA). Below is the reference architecture for our use case;
+Let's take a scenario where you must kick off the data pipeline when files land in the AWS S3 bucket, transform and save the data into S3 curated bucket, and crawl and catalog the curated data in the AWS Athena database table to run analytical queries without manual intervention. This blog post will walk you through step-by-step instructions for building data pipeline orchestration using Amazon Managed Workflow for Apache Airflow (MWAA). Below is the reference architecture for our use case;
 
 **Data Pipeline Orchestration - Reference Architecture**
 
 ![alt text](images/mwaa-data-pipeline-architecture.png)
- 
+
+Click ***[here](https://medium.com/contino-engineering/data-pipeline-orchestration-using-amazon-managed-workflows-for-apache-airflow-mwaa-60e5b213a0a7)*** to read the blog post **"Data Pipeline Orchestration - Using Amazon Managed Workflows for Apache Airflow (MWAA)."**
 
 # Prerequisite
 1. Change the following parameter values in **etlscript.py** file
@@ -61,6 +62,8 @@ Let's take a scenario where you must kick off the data pipeline when files land 
     - Crawler: Crawl and Catalog curated data using AWS Glue Crawler.
     - Catalog: Catalog the metadata of the process file.
 
+5. Lambda function to trigger MWAA pipeline
+
 4. Upload the CSV data files to S3 (Landing Zone) bucket
 
-5. Query transformed data using AWS Athena
+6. Query transformed data using AWS Athena
